@@ -1,0 +1,63 @@
+# Byte-compiled
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+venv/
+env/
+.env
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# Data (large files)
+data/vectors/
+!data/vectors/.gitkeep
+
+# Results
+results/logs/
+results/metrics/*.json
+!results/metrics/summary_*.json
+results/figures/
+!results/figures/.gitkeep
+
+# Model cache
+.cache/
+*.pt
+*.bin
+*.safetensors
+
+# But keep small vector files if explicitly added
+!data/vectors/*/metadata.json
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build
+build/
+dist/
+*.egg-info/
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Secrets
+.env
+*.pem
+*.key
+
+# Dev docs (internal planning, not for repo)
+_dev/
+CLAUDE.md
+HUMANIZE.md
