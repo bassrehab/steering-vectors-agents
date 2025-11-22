@@ -2,6 +2,8 @@
 
 from .base import ContrastPair, ContrastPairDataset, EvaluationDataset, EvaluationExample
 from .refusal_pairs import get_refusal_pairs, load_refusal_pairs
+from .tool_pairs import load_tool_restraint_pairs, TOOL_RESTRAINT_PAIRS
+from .hierarchy_pairs import load_hierarchy_pairs, HIERARCHY_PAIRS
 
 __all__ = [
     "ContrastPair",
@@ -10,4 +12,8 @@ __all__ = [
     "EvaluationExample",
     "get_refusal_pairs",
     "load_refusal_pairs",
+    "load_tool_restraint_pairs",
+    "TOOL_RESTRAINT_PAIRS",
+    "load_hierarchy_pairs",
+    "HIERARCHY_PAIRS",
 ]
