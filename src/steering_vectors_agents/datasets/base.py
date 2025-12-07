@@ -18,7 +18,7 @@ class ContrastPair:
 
     def __post_init__(self):
         if not self.positive or not self.negative:
-            raise ValueError("Both positive and negative texts required")
+            raise ValueError("need both positive and negative texts")
 
 
 class ContrastPairDataset:

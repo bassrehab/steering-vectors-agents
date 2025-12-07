@@ -53,13 +53,6 @@ class ActivationHook:
         component: Literal["residual", "mlp", "attn"] = "residual",
         token_position: Literal["last", "first", "all"] = "all",
     ):
-        """
-        Args:
-            model: HuggingFace model with accessible layers
-            layer_indices: Which layers to hook (0-indexed)
-            component: Which component to capture
-            token_position: Which token position(s) to store
-        """
         self.model = model
         self.layer_indices = layer_indices
         self.component = component
@@ -69,8 +62,7 @@ class ActivationHook:
         self._attached = False
 
     def _get_layer_module(self, layer_idx: int) -> nn.Module:
-        """Get the module for a specific layer."""
-        # handle different model architectures
+        # XXX: this is fragile - each model family has different structure
         if hasattr(self.model, "model") and hasattr(self.model.model, "layers"):
             # Llama, Qwen, Mistral style
             base = self.model.model.layers[layer_idx]
@@ -78,7 +70,8 @@ class ActivationHook:
             # GPT-2 style
             base = self.model.transformer.h[layer_idx]
         else:
-            raise ValueError(f"Unknown model architecture: {type(self.model)}")
+            # TODO: add support for more architectures (falcon, mpt, etc)
+            raise ValueError(f"unsupported model type: {type(self.model).__name__}")
 
         if self.component == "residual":
             return base

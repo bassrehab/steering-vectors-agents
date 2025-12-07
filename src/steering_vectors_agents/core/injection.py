@@ -25,13 +25,6 @@ class ActivationInjector:
         strength: float = 1.0,
         injection_mode: Literal["all", "last", "first"] = "all",
     ):
-        """
-        Args:
-            model: HuggingFace model to inject into
-            vectors: List of steering vectors to apply
-            strength: Multiplier for steering effect (0=none, 1=full)
-            injection_mode: Which token positions to inject at
-        """
         self.model = model
         self._vectors = {v.layer_index: v for v in vectors}
         self._strength = strength
@@ -54,7 +47,7 @@ class ActivationInjector:
         elif hasattr(self.model, "transformer") and hasattr(self.model.transformer, "h"):
             return self.model.transformer.h[layer_idx]
         else:
-            raise ValueError(f"Unknown model architecture: {type(self.model)}")
+            raise ValueError(f"can't find layers in model: {type(self.model).__name__}")
 
     def _create_injection_fn(self, layer_idx: int) -> Callable:
         """Create injection hook function for a layer."""
@@ -132,14 +125,6 @@ class MultiVectorInjector:
         injection_mode: Literal["all", "last", "first"] = "all",
         default_layer: Optional[int] = None,
     ):
-        """
-        Args:
-            model: HuggingFace model
-            vector_sets: Dict mapping behavior name to SteeringVectorSet
-            strengths: Dict mapping behavior name to strength (default 1.0)
-            injection_mode: Where to inject
-            default_layer: If set, use this layer from each set
-        """
         self.model = model
         self.vector_sets = vector_sets
         self._strengths = strengths or {k: 1.0 for k in vector_sets}
@@ -166,7 +151,7 @@ class MultiVectorInjector:
     def set_strength(self, behavior: str, strength: float) -> None:
         """Set strength for a specific behavior."""
         if behavior not in self._strengths:
-            raise KeyError(f"Unknown behavior: {behavior}")
+            raise KeyError(f"no such behavior: '{behavior}'")
         self._strengths[behavior] = strength
 
     def get_strength(self, behavior: str) -> float:
@@ -174,11 +159,12 @@ class MultiVectorInjector:
         return self._strengths.get(behavior, 0.0)
 
     def _get_layer_module(self, layer_idx: int) -> nn.Module:
+        # FIXME: duplicated from ActivationInjector, should extract to common helper
         if hasattr(self.model, "model") and hasattr(self.model.model, "layers"):
             return self.model.model.layers[layer_idx]
         elif hasattr(self.model, "transformer") and hasattr(self.model.transformer, "h"):
             return self.model.transformer.h[layer_idx]
-        raise ValueError(f"Unknown model architecture: {type(self.model)}")
+        raise ValueError(f"model type not supported: {type(self.model)}")
 
     def _create_multi_injection_fn(self, layer_idx: int) -> Callable:
         """Create hook that applies multiple vectors at one layer."""

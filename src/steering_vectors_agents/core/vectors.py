@@ -84,12 +84,11 @@ class SteeringVector:
             "vector_shape": list(self.vector.shape),
         }
 
-        # save metadata as json
+        # save metadata + tensor separately (easier to inspect metadata without loading torch)
         meta_path = path.with_suffix(".json")
         with open(meta_path, "w") as f:
             json.dump(data, f, indent=2)
 
-        # save tensor
         torch.save(self.vector, path.with_suffix(".pt"))
 
     @classmethod
@@ -97,7 +96,7 @@ class SteeringVector:
         """Load vector from file."""
         path = Path(path)
 
-        # handle both .pt and .json paths
+        # handle both .pt and .json paths (users pass either, we figure it out)
         if path.suffix == ".pt":
             meta_path = path.with_suffix(".json")
             tensor_path = path
@@ -147,14 +146,9 @@ class SteeringVectorSet:
         return self._vectors.get(layer_index)
 
     def get_best(self, metric: str = "norm") -> SteeringVector:
-        """
-        Get the 'best' vector based on a metric.
-
-        For now just returns highest norm, but could be extended
-        to use validation metrics.
-        """
+        """Get the 'best' vector based on a metric (just norm for now)."""
         if not self._vectors:
-            raise ValueError("No vectors in set")
+            raise ValueError("empty vector set")
 
         if metric == "norm":
             return max(self._vectors.values(), key=lambda v: v.norm)

@@ -157,7 +157,7 @@ class TestSteeringVectorSet:
     def test_get_best_empty_raises(self):
         vec_set = SteeringVectorSet(behavior="refusal")
 
-        with pytest.raises(ValueError, match="No vectors"):
+        with pytest.raises(ValueError, match="empty"):
             vec_set.get_best()
 
     def test_iteration(self):

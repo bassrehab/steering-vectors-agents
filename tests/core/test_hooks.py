@@ -12,7 +12,7 @@ from steering_vectors_agents.core.hooks import (
 
 
 class SimpleTransformerLayer(nn.Module):
-    """Minimal transformer layer for testing."""
+    """Minimal transformer layer for testing (not a real transformer)."""
 
     def __init__(self, hidden_size: int = 64):
         super().__init__()

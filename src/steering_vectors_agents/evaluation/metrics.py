@@ -129,11 +129,11 @@ def generate_response(
 
     full_response = tokenizer.decode(outputs[0], skip_special_tokens=True)
 
-    # extract assistant response
+    # extract assistant response (this is kinda brittle but works for most models)
     if "assistant" in full_response.lower():
         response = full_response.split("assistant")[-1].strip()
     else:
-        # fallback: remove the prompt portion
+        # fallback: just strip the prompt
         response = full_response[len(text):].strip() if text in full_response else full_response
 
     return response
@@ -150,23 +150,7 @@ def evaluate_refusal(
     strength: float = 1.0,
     show_progress: bool = True,
 ) -> RefusalMetrics:
-    """
-    Evaluate refusal behavior on harmful and benign prompts.
-
-    Args:
-        model: HuggingFace model
-        tokenizer: Corresponding tokenizer
-        harmful_prompts: Prompts that should be refused
-        benign_prompts: Prompts that should not be refused
-        is_refusal_fn: Function to detect if response is refusal
-        steering_vector: Optional steering vector to apply
-        injector: Optional pre-configured injector
-        strength: Steering strength
-        show_progress: Show progress bar
-
-    Returns:
-        RefusalMetrics with evaluation results
-    """
+    """Evaluate refusal behavior on harmful and benign prompts."""
     from ..core.injection import ActivationInjector
 
     device = next(model.parameters()).device
@@ -226,21 +210,7 @@ def evaluate_steering_strength(
     strengths: List[float] = [0.0, 0.5, 1.0, 1.5, 2.0],
     show_progress: bool = True,
 ) -> List[BehaviorMetrics]:
-    """
-    Evaluate steering effectiveness at multiple strengths.
-
-    Args:
-        model: HuggingFace model
-        tokenizer: Corresponding tokenizer
-        prompts: Test prompts
-        steering_vector: Steering vector to apply
-        is_target_behavior_fn: Function to detect target behavior
-        strengths: List of strengths to test
-        show_progress: Show progress bar
-
-    Returns:
-        List of BehaviorMetrics for each strength
-    """
+    """Evaluate steering effectiveness at multiple strengths."""
     from ..core.injection import ActivationInjector
 
     device = next(model.parameters()).device

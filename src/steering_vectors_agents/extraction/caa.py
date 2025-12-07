@@ -20,28 +20,11 @@ def extract_caa_vector(
     contrast_pairs: Union[ContrastPairDataset, List[dict]],
     layer_idx: int,
     token_position: Literal["last", "first", "mean"] = "last",
-    batch_size: int = 1,
+    batch_size: int = 1,  # not actually used yet, kept for API compat
     show_progress: bool = True,
 ) -> SteeringVector:
     """
-    Extract a steering vector using Contrastive Activation Addition.
-
-    Algorithm:
-    1. Run model on positive examples, collect activations at target layer
-    2. Run model on negative examples, collect activations at target layer
-    3. Steering vector = mean(positive_activations) - mean(negative_activations)
-
-    Args:
-        model: HuggingFace model
-        tokenizer: Corresponding tokenizer
-        contrast_pairs: Dataset of positive/negative pairs
-        layer_idx: Layer to extract from (0-indexed)
-        token_position: Which token's activation to use
-        batch_size: Batch size for processing (1 is safest for memory)
-        show_progress: Show progress bar
-
-    Returns:
-        SteeringVector for the specified layer
+    Extract steering vector using CAA: mean(positive) - mean(negative) activations.
     """
     device = next(model.parameters()).device
     model.eval()
