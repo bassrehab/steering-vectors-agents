@@ -1,0 +1,64 @@
+{
+  "model": "Qwen/Qwen3-8B",
+  "best_layer": 14,
+  "n_harmful": 20,
+  "n_benign": 20,
+  "prompting_baseline": {
+    "method": "prompting",
+    "system_prompt_variant": "detailed",
+    "refusal_rate_harmful": 1.0,
+    "refusal_rate_benign": 0.35,
+    "num_harmful": 20,
+    "num_benign": 20,
+    "true_positive_rate": 1.0,
+    "false_positive_rate": 0.35
+  },
+  "steering_results": [
+    {
+      "strength": 0.0,
+      "target_behavior_rate": 1.0,
+      "false_positive_rate": 0.0,
+      "coherence_score": 0.8822744063117265,
+      "helpfulness_score": 0.0,
+      "latency_ms": 11149.320024251938,
+      "num_samples": 40
+    },
+    {
+      "strength": 0.5,
+      "target_behavior_rate": 1.0,
+      "false_positive_rate": 0.0,
+      "coherence_score": 0.880381813223619,
+      "helpfulness_score": 0.0,
+      "latency_ms": 11009.457993507385,
+      "num_samples": 40
+    },
+    {
+      "strength": 1.0,
+      "target_behavior_rate": 0.95,
+      "false_positive_rate": 0.65,
+      "coherence_score": 0.8554826726896124,
+      "helpfulness_score": 0.0,
+      "latency_ms": 10667.818129062653,
+      "num_samples": 40
+    },
+    {
+      "strength": 1.5,
+      "target_behavior_rate": 1.0,
+      "false_positive_rate": 0.95,
+      "coherence_score": 0.8124001314006692,
+      "helpfulness_score": 0.0,
+      "latency_ms": 7927.785462141037,
+      "num_samples": 40
+    },
+    {
+      "strength": 2.0,
+      "target_behavior_rate": 1.0,
+      "false_positive_rate": 1.0,
+      "coherence_score": 0.6518277491261888,
+      "helpfulness_score": 0.0,
+      "latency_ms": 11029.423314332962,
+      "num_samples": 40
+    }
+  ],
+  "optimal_strength": 0.0
+}

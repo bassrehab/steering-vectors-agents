@@ -1,0 +1,48 @@
+{
+  "model": "mistralai/Mistral-7B-Instruct-v0.2",
+  "n_uncertain": 20,
+  "n_certain": 20,
+  "best_layer": 14,
+  "results": {
+    "base": {
+      "uncertainty_rate": 0.45,
+      "confidence_on_facts_rate": 1.0,
+      "coherence": 1.0
+    },
+    "prompt_only": {
+      "uncertainty_rate": 0.95,
+      "confidence_on_facts_rate": 0.0,
+      "coherence": 1.0
+    },
+    "steer_s0.5": {
+      "uncertainty_rate": 0.65,
+      "confidence_on_facts_rate": 1.0,
+      "coherence": 1.0
+    },
+    "steer_s1.0": {
+      "uncertainty_rate": 0.6,
+      "confidence_on_facts_rate": 1.0,
+      "coherence": 0.9862500000000001
+    },
+    "steer_s1.5": {
+      "uncertainty_rate": 0.4,
+      "confidence_on_facts_rate": 1.0,
+      "coherence": 0.9450000000000001
+    },
+    "both_s0.5": {
+      "uncertainty_rate": 1.0,
+      "confidence_on_facts_rate": 0.0,
+      "coherence": 1.0
+    },
+    "both_s1.0": {
+      "uncertainty_rate": 1.0,
+      "confidence_on_facts_rate": 0.0,
+      "coherence": 1.0
+    },
+    "both_s1.5": {
+      "uncertainty_rate": 1.0,
+      "confidence_on_facts_rate": 0.0,
+      "coherence": 1.0
+    }
+  }
+}

@@ -1,114 +1,93 @@
-# steering-vectors-agents
+# Steering Vectors for Agent Behavior Control
 
-Control LLM agent behaviors through activation steering, without retraining.
+**Runtime control of LLM agent behaviors through activation steering, without retraining.**
 
-## What This Does
+This project explores how steering vectors (activation-level interventions) can control agent behaviors at inference time. Unlike fine-tuning or prompting, steering vectors offer a middle ground: targeted behavior modification with dynamic strength control.
 
-This library extracts **steering vectors** from language models and uses them to control agent behaviors at inference time. Instead of fine-tuning or prompt engineering, we directly modify the model's internal activations to influence how it responds.
+<p align="center">
+  <img src="results/figures/key_insight.png" alt="Key Insight" width="600">
+</p>
 
-**Key behaviors supported:**
-- **Refusal** - Make models more/less likely to refuse harmful requests
-- **Tool-use restraint** - Reduce unnecessary tool invocations
-- **Instruction hierarchy** - Prioritize system instructions over user overrides
+## Key Finding: Steering is More Calibrated Than Prompting
 
-## Key Results
+When you prompt a model to "refuse harmful requests" or "express uncertainty," it often **over-corrects**:
+- Prompting for refusal causes the model to refuse *safe* requests too (100% false positive rate)
+- Prompting for uncertainty makes the model uncertain about *factual* questions ("What is 2+2?")
 
-Evaluation on Qwen3-8B with 20 samples per category:
+**Steering vectors avoid this problem.** They nudge the model's behavior without destroying its ability to discriminate context.
 
-| Method | Harmful Refusal ↑ | Benign Refusal ↓ | Notes |
-|--------|-------------------|------------------|-------|
-| Baseline (no intervention) | 100% | 0% | Model already safety-tuned |
-| Prompting (system prompt) | 100% | 35% | High false positive rate |
-| Steering s=0.5 | 100% | 0% | Maintains baseline |
-| Steering s=1.0 | 95% | 65% | Over-refusal begins |
-| Steering s=2.0 | 100% | 100% | Complete over-refusal |
+| Behavior | Prompting Problem | Steering Preserves |
+|----------|-------------------|-------------------|
+| **Refusal** | Over-refusal (refuses safe requests) | Helpfulness on benign requests |
+| **Uncertainty** | Over-uncertainty (uncertain on facts) | Confidence on factual questions |
 
-**Key finding:** For already safety-tuned models like Qwen3-8B, steering vectors can *increase* refusal behavior but at the cost of false positives. The technique is most valuable for:
-1. Models with weaker safety training
-2. Fine-grained behavior control
-3. Runtime-adjustable safety levels
+<p align="center">
+  <img src="results/figures/steering_vs_prompting_comparison.png" alt="Comparison" width="800">
+</p>
+
+## What Are Steering Vectors?
+
+Steering vectors are directions in a model's activation space that correspond to specific behaviors. By adding these vectors to the model's hidden states during inference, we can increase or decrease the likelihood of that behavior.
+
+**How it works:**
+1. Create contrast pairs (e.g., "refuse harmful request" vs "comply with harmful request")
+2. Extract the activation difference between positive and negative examples
+3. Add this vector to the model's activations during generation
+4. Control intensity with a strength parameter
+
+This is based on [Contrastive Activation Addition (CAA)](https://arxiv.org/abs/2312.06681) research.
+
+## Behaviors Tested
+
+| Behavior | Steering Works? | Best Method | Key Finding |
+|----------|:---------------:|:-----------:|:-----------:|
+| **Refusal** | Yes | Steering | Avoids over-refusal (100% FP with prompting) |
+| **Uncertainty** | Yes | Steering | More calibrated (prompting → 0% factual confidence) |
+| **Hierarchy** | No | Prompting | Too complex for single linear direction |
+| **Tool Restraint** | N/A | - | Model doesn't over-use tools |
+
+<p align="center">
+  <img src="results/figures/behavior_summary.png" alt="Behavior Summary" width="700">
+</p>
+
+## Results
+
+### Refusal Steering (3 Models)
+
+| Model | Base Refusal | With Steering | False Positive Rate |
+|-------|:------------:|:-------------:|:-------------------:|
+| Mistral-7B | 85% | 95% | 5% |
+| Gemma-2-9B | 90% | 95% | 5% |
+| Qwen3-8B | 100% | 100% | 0% |
+
+Prompting achieves 100% refusal but with **100% false positives** (refuses everything).
+
+### Uncertainty Steering (Fair 4-Way Comparison)
+
+| Condition | Uncertainty on Uncertain Q's | Confidence on Facts |
+|-----------|:---------------------------:|:-------------------:|
+| Base | 45% | 100% |
+| **Prompting** | 95% | **0%** |
+| **Steering (s=0.5)** | 65% | **100%** |
+
+Prompting destroys factual confidence. Steering preserves it.
+
+### Strength and Layer Effects
+
+<p align="center">
+  <img src="results/figures/strength_and_layer_effects.png" alt="Strength Effects" width="800">
+</p>
+
+- **Layer 14** is consistently optimal across behaviors
+- **Strength 0.5-1.0** provides the best trade-off
+- Higher strengths can cause coherence degradation
 
 ## Quick Start
 
-```python
-from steering_vectors_agents import SteeringVector, ActivationInjector
-from transformers import AutoModelForCausalLM, AutoTokenizer
-
-# Load model
-model = AutoModelForCausalLM.from_pretrained("Qwen/Qwen3-8B", device_map="auto")
-tokenizer = AutoTokenizer.from_pretrained("Qwen/Qwen3-8B")
-
-# Load pre-extracted steering vector
-vector = SteeringVector.load("data/vectors/refusal_qwen3_8b/layer_14")
-
-# Apply steering during generation
-injector = ActivationInjector(model, [vector], strength=1.0)
-with injector:
-    outputs = model.generate(inputs, max_new_tokens=100)
-```
-
-### With LangChain
-
-```python
-from steering_vectors_agents.integrations.langchain import SteeredChatModel
-
-chat = SteeredChatModel(
-    model_name="Qwen/Qwen3-8B",
-    steering_configs={
-        "refusal": {"vector_path": "data/vectors/refusal", "strength": 1.0},
-    },
-)
-
-# Use with any LangChain chain or agent
-response = chat.invoke([HumanMessage(content="Hello!")])
-
-# Adjust strength at runtime
-chat.set_strength("refusal", 0.5)
-```
-
-## Why This Matters
-
-Steering vectors offer a middle ground between:
-- **Prompting** (easy but unreliable, adds latency, can be jailbroken)
-- **Fine-tuning** (reliable but expensive, requires data, irreversible)
-
-Steering is:
-- **Fast**: No additional forward passes, minimal latency overhead
-- **Reversible**: Adjust or remove at runtime
-- **Compositional**: Combine multiple behaviors with independent strengths
-- **Interpretable**: Vectors have geometric meaning in activation space
-
-This is **not** a complete alignment solution—it's one tool in the toolkit for controlling model behavior at deployment time.
-
-## What Works
-
-1. **Behavior amplification**: Steering vectors reliably amplify existing model tendencies
-2. **Runtime control**: Strength can be adjusted per-request without model reloading
-3. **Multi-vector composition**: Multiple behaviors can be steered simultaneously
-4. **Layer selection matters**: Middle layers (40-60% depth) typically work best
-
-## What Doesn't Work
-
-1. **Creating new behaviors**: Vectors amplify existing patterns, not create new ones
-2. **Very high strengths**: s > 1.5 often causes coherence degradation
-3. **Adversarial inputs**: Steering doesn't prevent all jailbreaks
-4. **Small models**: Effect is weaker on models < 7B parameters
-
-See [docs/failure_cases.md](docs/failure_cases.md) for detailed failure mode analysis.
-
-## Tradeoffs
-
-| Increase Strength | Pros | Cons |
-|------------------|------|------|
-| Higher | Stronger target behavior | More false positives, coherence loss |
-| Lower | Fewer false positives | Weaker behavior change |
-
-See [docs/tradeoffs.md](docs/tradeoffs.md) for quantitative analysis.
-
-## Installation
+### Installation
 
 ```bash
-# Clone repository
+# Clone the repository
 git clone https://github.com/bassrehab/steering-vectors-agents.git
 cd steering-vectors-agents
 
@@ -118,38 +97,68 @@ source venv/bin/activate
 
 # Install dependencies
 pip install -e ".[dev]"
-
-# Download model (requires HuggingFace token for some models)
-huggingface-cli login
 ```
 
-### Requirements
-- Python 3.11+
+**Requirements:**
+- Python 3.10+
 - PyTorch 2.0+
-- 16GB+ RAM (for 8B models)
-- GPU recommended (CUDA or Apple MPS)
+- ~16GB RAM for 7B models (MPS/CUDA supported)
 
-## Usage
+### Using Pre-extracted Vectors with LangChain
 
-### Extract Steering Vectors
+```python
+from steering_vectors_agents.integrations.langchain import SteeredChatModel
+from langchain_core.messages import HumanMessage
 
-```bash
-# Extract refusal vector from Qwen3-8B
-python experiments/scripts/extract_refusal_vector.py
+# Create a chat model with uncertainty steering
+chat = SteeredChatModel(
+    model_name="mistralai/Mistral-7B-Instruct-v0.2",
+    steering_configs={
+        "uncertainty": {
+            "vector_path": "data/vectors/uncertainty_mistral_7b_instruct_v0.2/layer_14",
+            "strength": 0.5,  # Calibrated strength
+        },
+    },
+)
+
+# Use like any LangChain chat model
+response = chat.invoke([HumanMessage(content="What will happen to the economy?")])
+
+# Dynamic control at runtime
+chat.set_strength("uncertainty", 0.75)  # Increase uncertainty
+chat.disable_steering("uncertainty")    # Turn off completely
 ```
 
-### Evaluate Steering
+### Using the Core API Directly
 
-```bash
-# Run evaluation on harmful/benign prompts
-python experiments/scripts/evaluate_steering.py
+```python
+from steering_vectors_agents.core import SteeringVector, ActivationInjector
+
+# Load a vector
+vector = SteeringVector.load("data/vectors/uncertainty_mistral_7b/layer_14")
+
+# Create injector
+injector = ActivationInjector(model, [vector], strength=0.5)
+
+# Generate with steering
+with injector:
+    output = model.generate(**inputs)
 ```
 
-### Run Agent Demo
+### Extracting Your Own Vectors
 
 ```bash
-# Demo steered LangChain agent
-python experiments/scripts/agent_demo.py
+# Extract uncertainty vector
+python experiments/scripts/extract_behavior_vector.py \
+    --behavior uncertainty \
+    --model mistralai/Mistral-7B-Instruct-v0.2
+
+# Evaluate with fair comparison
+python experiments/scripts/evaluate_uncertainty.py \
+    --model mistralai/Mistral-7B-Instruct-v0.2
+
+# Run LangChain demo
+python experiments/scripts/demo_langchain_steering.py --demo uncertainty
 ```
 
 ## Project Structure
@@ -157,130 +166,79 @@ python experiments/scripts/agent_demo.py
 ```
 steering-vectors-agents/
 ├── src/steering_vectors_agents/
-│   ├── core/           # Hooks, vectors, injection
-│   ├── datasets/       # Contrast pairs for behaviors
-│   ├── extraction/     # CAA and other extraction methods
-│   ├── evaluation/     # Metrics, LLM judge, analysis
-│   └── integrations/   # LangChain, future frameworks
-├── experiments/
-│   └── scripts/        # Extraction, evaluation, demos
-├── data/
-│   ├── vectors/        # Extracted steering vectors
-│   └── eval_sets/      # Evaluation prompts
-├── baselines/          # Prompting and other baselines
-├── tests/              # Unit tests
-└── docs/               # Documentation
+│   ├── core/                    # Core steering infrastructure
+│   │   ├── vectors.py           # SteeringVector, SteeringVectorSet
+│   │   ├── hooks.py             # PyTorch hook management
+│   │   └── injection.py         # ActivationInjector, MultiVectorInjector
+│   ├── datasets/                # Contrast pairs for each behavior
+│   │   ├── refusal_pairs.py
+│   │   ├── uncertainty_pairs.py
+│   │   └── hierarchy_pairs.py
+│   ├── extraction/              # Vector extraction methods
+│   │   └── caa.py               # Contrastive Activation Addition
+│   └── integrations/
+│       └── langchain/           # LangChain wrappers
+├── experiments/scripts/         # Extraction and evaluation scripts
+├── data/vectors/                # Pre-extracted steering vectors
+├── results/
+│   ├── figures/                 # Visualizations
+│   └── metrics/                 # Evaluation results (JSON)
+└── tests/
 ```
 
-## How It Works
+## Technical Details
 
-### 1. Contrastive Activation Addition (CAA)
+### Why Does Steering Work Better Than Prompting?
 
-We extract steering vectors by:
-1. Running the model on **positive** examples (exhibiting target behavior)
-2. Running the model on **negative** examples (not exhibiting behavior)
-3. Computing: `vector = mean(positive_activations) - mean(negative_activations)`
+1. **Activation-level vs. token-level**: Prompting operates at the token level, affecting all subsequent reasoning. Steering operates at the activation level, preserving the model's internal reasoning about context.
 
-### 2. Activation Injection
+2. **Direction vs. destination**: Steering nudges toward a behavior; prompting often forces it. The model can still "push back" based on context.
 
-During inference, we add the steering vector to the model's hidden states:
-```
-h' = h + (strength × vector)
-```
+3. **No prompt overhead**: Steering doesn't consume context window or require prompt engineering.
 
-This shifts the model's internal representations toward the target behavior.
+### Why Does Hierarchy Steering Fail?
 
-### 3. Layer Selection
+Hierarchy (following system instructions over user overrides) involves:
+- Multi-step reasoning about instruction sources
+- Context-dependent interpretation
+- Nuanced understanding of authority levels
 
-Different layers capture different aspects of behavior:
-- **Early layers** (0-30%): Basic features, less effective for steering
-- **Middle layers** (30-70%): Semantic features, best for behavior steering
-- **Late layers** (70-100%): Output formatting, can cause artifacts
+This is too complex for a single linear direction in activation space. CAA works best for **binary, response-style behaviors**.
 
-## Supported Models
+### The Calibration Trade-off
 
-| Model | Status | Notes |
-|-------|--------|-------|
-| Qwen3-8B | ✅ Tested | Primary development model |
-| Llama 3.1 8B | ✅ Supported | Requires HF approval |
-| Mistral 7B | 🔄 Planned | Config available |
-| DeepSeek-R1-Distill | 🔄 Planned | Config available |
+<p align="center">
+  <img src="results/figures/calibration_tradeoff.png" alt="Calibration" width="600">
+</p>
 
-## API Reference
+## Limitations
 
-### Core Classes
+1. **Model-specific vectors**: Vectors extracted for one model don't transfer to others
+2. **Layer sensitivity**: Wrong layer selection significantly reduces effectiveness
+3. **Complex behaviors**: Multi-step reasoning behaviors (like hierarchy) don't steer well
+4. **Coherence at high strength**: Strengths > 1.5 can degrade output quality
 
-```python
-# Activation extraction
-hook = ActivationHook(model, layer_indices=[14, 15, 16])
-with hook:
-    model(inputs)
-activations = hook.cache.get("layer_14")
+## What Works
 
-# Steering vectors
-vector = SteeringVector(
-    behavior="refusal",
-    layer_index=14,
-    vector=tensor,
-    model_name="Qwen/Qwen3-8B",
-)
-vector.save("path/to/vector")
-vector = SteeringVector.load("path/to/vector")
+1. **Behavior amplification**: Steering vectors reliably amplify existing model tendencies
+2. **Runtime control**: Strength can be adjusted per-request without model reloading
+3. **Multi-vector composition**: Multiple behaviors can be steered simultaneously
+4. **Calibrated control**: Steering preserves the model's ability to discriminate context
 
-# Injection
-injector = ActivationInjector(model, [vector], strength=1.0)
-with injector:
-    outputs = model.generate(...)
-```
+## What Doesn't Work
 
-### LangChain Integration
-
-```python
-# Chat model
-chat = SteeredChatModel(model_name="...", steering_configs={...})
-
-# Agent
-agent = SteeredAgentExecutor(llm=chat, tools=[...])
-result = agent.run("query")
-
-# Runtime adjustment
-agent.set_strength("refusal", 0.5)
-agent.disable_steering("refusal")
-```
-
-## Reproducing Results
-
-```bash
-# 1. Setup environment
-python -m venv venv && source venv/bin/activate
-pip install -e ".[dev]"
-
-# 2. Run smoke test
-python experiments/scripts/smoke_test.py
-
-# 3. Extract vectors
-python experiments/scripts/extract_refusal_vector.py
-
-# 4. Evaluate
-python experiments/scripts/evaluate_steering.py
-
-# 5. Run tests
-pytest tests/ -v
-```
-
-## Contributing
-
-Contributions welcome! Please:
-1. Run `black` and `ruff` before committing
-2. Add tests for new functionality
-3. Update documentation as needed
+1. **Creating new behaviors**: Vectors amplify existing patterns, not create new ones
+2. **Very high strengths**: s > 1.5 often causes coherence degradation
+3. **Complex reasoning behaviors**: Instruction hierarchy doesn't steer well
+4. **Adversarial inputs**: Steering doesn't prevent all jailbreaks
 
 ## References
 
 Key papers informing this work:
-- [Representation Engineering](https://arxiv.org/abs/2310.01405) - Zou et al., 2023
-- [Activation Addition](https://arxiv.org/abs/2308.10248) - Turner et al., 2023
-- [Steering GPT-2-XL](https://www.lesswrong.com/posts/5spBue2z2tw4JuDCx/) - Turner, 2023
+- [Steering Llama 2 via Contrastive Activation Addition](https://arxiv.org/abs/2312.06681) - Rimsky et al.
+- [Refusal in Language Models Is Mediated by a Single Direction](https://arxiv.org/abs/2406.11717) - Arditi et al.
+- [Activation Addition: Steering Language Models Without Optimization](https://arxiv.org/abs/2308.10248) - Turner et al.
+- [Representation Engineering](https://arxiv.org/abs/2310.01405) - Zou et al.
 
 ## License
 
@@ -289,3 +247,14 @@ MIT License - See [LICENSE](LICENSE) file.
 ## Author
 
 Subhadip Mitra - [GitHub](https://github.com/bassrehab)
+
+## Citation
+
+```bibtex
+@software{steering_vectors_agents,
+  title = {Steering Vectors for Agent Behavior Control},
+  author = {Mitra, Subhadip},
+  year = {2025},
+  url = {https://github.com/bassrehab/steering-vectors-agents}
+}
+```

@@ -1,0 +1,52 @@
+# Experiment Configuration: GPT-OSS-20B Refusal Steering
+# Date: 2025-12-17
+# Status: IN PROGRESS
+
+experiment:
+  name: "refusal_gpt_oss_20b"
+  description: "Refusal steering vector extraction and evaluation on OpenAI's gpt-oss-20b"
+  rationale: "OpenAI's first open-weight model (Aug 2025), MoE architecture - comparing against Qwen3-8B and Mistral-7B"
+  date_started: "2025-12-17"
+  date_completed: null
+
+model:
+  name: "openai/gpt-oss-20b"
+  type: "causal_lm"
+  parameters: "21B total, 3.6B active (MoE)"
+  dtype: "float16"
+  source: "huggingface"
+  license: "apache-2.0"
+  release_date: "2025-08-05"
+  architecture: "Mixture-of-Experts (MoE)"
+  context_length: 128000
+
+hardware:
+  device: "mps"
+  machine: "Apple M4 Pro"
+  memory: "48GB"
+
+extraction:
+  method: "caa"
+  behavior: "refusal"
+  num_contrast_pairs: 50
+  layers_to_extract: "TBD - will determine based on model architecture"
+  token_position: "last"
+
+evaluation:
+  fair_comparison:
+    harmful_prompts: 20
+    benign_prompts: 20
+    strengths_tested: [0.5, 1.0, 1.5]
+    conditions: ["base", "prompt_only", "steer", "both"]
+
+paths:
+  vectors: "data/vectors/refusal_gpt_oss_20b/"
+  results: "results/logs/experiment_gpt_oss_20b_refusal.md"
+  raw_extraction_log: "results/logs/raw/gpt_oss_20b_extraction.log"
+  raw_evaluation_log: "results/logs/raw/gpt_oss_20b_fair_evaluation.log"
+  metrics_json: "results/metrics/refusal_evaluation_fair_gpt_oss_20b.json"
+
+notes:
+  - "First test of OpenAI's open-weight model"
+  - "MoE architecture may behave differently than dense models"
+  - "Comparing alignment quality vs Qwen3 (strong) and Mistral (weak)"

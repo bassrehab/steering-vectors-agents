@@ -1,0 +1,78 @@
+
+Uncertainty Vector Extraction
+
+Model: mistralai/Mistral-7B-Instruct-v0.2
+Device: mps
+Output: data/vectors/uncertainty_mistral_7b_instruct_v0.2
+
+Loading model...
+`torch_dtype` is deprecated! Use `dtype` instead!
+Loading checkpoint shards:   0%|          | 0/3 [00:00<?, ?it/s]Loading checkpoint shards:  33%|███▎      | 1/3 [00:02<00:04,  2.50s/it]Loading checkpoint shards:  67%|██████▋   | 2/3 [00:04<00:02,  2.47s/it]Loading checkpoint shards: 100%|██████████| 3/3 [00:07<00:00,  2.38s/it]Loading checkpoint shards: 100%|██████████| 3/3 [00:07<00:00,  2.40s/it]
+Target layers: [10, 12, 14, 16]
+
+Loading contrast pairs...
+Loaded 26 contrast pairs
+
+Extracting vectors...
+
+Extracting layer 10...
+Layer 10:   0%|          | 0/26 [00:00<?, ?it/s]Layer 10:   4%|▍         | 1/26 [00:00<00:09,  2.77it/s]Layer 10:   8%|▊         | 2/26 [00:00<00:09,  2.48it/s]Layer 10:  12%|█▏        | 3/26 [00:01<00:09,  2.47it/s]Layer 10:  15%|█▌        | 4/26 [00:01<00:08,  2.46it/s]Layer 10:  19%|█▉        | 5/26 [00:02<00:08,  2.46it/s]Layer 10:  23%|██▎       | 6/26 [00:02<00:07,  2.58it/s]Layer 10:  27%|██▋       | 7/26 [00:02<00:07,  2.67it/s]Layer 10:  31%|███       | 8/26 [00:03<00:06,  2.67it/s]Layer 10:  35%|███▍      | 9/26 [00:03<00:07,  2.29it/s]Layer 10:  38%|███▊      | 10/26 [00:04<00:06,  2.32it/s]Layer 10:  42%|████▏     | 11/26 [00:04<00:06,  2.31it/s]Layer 10:  46%|████▌     | 12/26 [00:04<00:05,  2.43it/s]Layer 10:  50%|█████     | 13/26 [00:05<00:05,  2.23it/s]Layer 10:  54%|█████▍    | 14/26 [00:05<00:05,  2.09it/s]Layer 10:  58%|█████▊    | 15/26 [00:06<00:04,  2.23it/s]Layer 10:  62%|██████▏   | 16/26 [00:06<00:04,  2.29it/s]Layer 10:  65%|██████▌   | 17/26 [00:07<00:03,  2.48it/s]Layer 10:  69%|██████▉   | 18/26 [00:07<00:03,  2.53it/s]Layer 10:  73%|███████▎  | 19/26 [00:07<00:02,  2.56it/s]Layer 10:  77%|███████▋  | 20/26 [00:08<00:02,  2.51it/s]Layer 10:  81%|████████  | 21/26 [00:08<00:01,  2.64it/s]Layer 10:  85%|████████▍ | 22/26 [00:08<00:01,  2.64it/s]Layer 10:  88%|████████▊ | 23/26 [00:09<00:01,  2.62it/s]Layer 10:  92%|█████████▏| 24/26 [00:09<00:00,  2.59it/s]Layer 10:  96%|█████████▌| 25/26 [00:10<00:00,  2.58it/s]Layer 10: 100%|██████████| 26/26 [00:10<00:00,  2.51it/s]Layer 10: 100%|██████████| 26/26 [00:10<00:00,  2.46it/s]
+  Vector norm: 1.6484
+
+Extracting layer 12...
+Layer 12:   0%|          | 0/26 [00:00<?, ?it/s]Layer 12:   4%|▍         | 1/26 [00:00<00:05,  4.17it/s]Layer 12:   8%|▊         | 2/26 [00:00<00:08,  2.96it/s]Layer 12:  12%|█▏        | 3/26 [00:01<00:08,  2.78it/s]Layer 12:  15%|█▌        | 4/26 [00:01<00:08,  2.69it/s]Layer 12:  19%|█▉        | 5/26 [00:01<00:07,  2.66it/s]Layer 12:  23%|██▎       | 6/26 [00:02<00:07,  2.77it/s]Layer 12:  27%|██▋       | 7/26 [00:02<00:06,  2.86it/s]Layer 12:  31%|███       | 8/26 [00:02<00:06,  2.88it/s]Layer 12:  35%|███▍      | 9/26 [00:03<00:06,  2.44it/s]Layer 12:  38%|███▊      | 10/26 [00:03<00:06,  2.47it/s]Layer 12:  42%|████▏     | 11/26 [00:04<00:06,  2.48it/s]Layer 12:  46%|████▌     | 12/26 [00:04<00:05,  2.58it/s]Layer 12:  50%|█████     | 13/26 [00:05<00:05,  2.34it/s]Layer 12:  54%|█████▍    | 14/26 [00:05<00:05,  2.17it/s]Layer 12:  58%|█████▊    | 15/26 [00:05<00:04,  2.29it/s]Layer 12:  62%|██████▏   | 16/26 [00:06<00:04,  2.38it/s]Layer 12:  65%|██████▌   | 17/26 [00:06<00:03,  2.55it/s]Layer 12:  69%|██████▉   | 18/26 [00:06<00:03,  2.64it/s]Layer 12:  73%|███████▎  | 19/26 [00:07<00:02,  2.66it/s]Layer 12:  77%|███████▋  | 20/26 [00:07<00:02,  2.59it/s]Layer 12:  81%|████████  | 21/26 [00:08<00:01,  2.71it/s]Layer 12:  85%|████████▍ | 22/26 [00:08<00:01,  2.68it/s]Layer 12:  88%|████████▊ | 23/26 [00:08<00:01,  2.66it/s]Layer 12:  92%|█████████▏| 24/26 [00:09<00:00,  2.62it/s]Layer 12:  96%|█████████▌| 25/26 [00:09<00:00,  2.59it/s]Layer 12: 100%|██████████| 26/26 [00:10<00:00,  2.56it/s]Layer 12: 100%|██████████| 26/26 [00:10<00:00,  2.58it/s]
+  Vector norm: 2.3594
+
+Extracting layer 14...
+Layer 14:   0%|          | 0/26 [00:00<?, ?it/s]Layer 14:   4%|▍         | 1/26 [00:00<00:06,  3.96it/s]Layer 14:   8%|▊         | 2/26 [00:00<00:08,  2.89it/s]Layer 14:  12%|█▏        | 3/26 [00:01<00:08,  2.76it/s]Layer 14:  15%|█▌        | 4/26 [00:01<00:08,  2.66it/s]Layer 14:  19%|█▉        | 5/26 [00:01<00:07,  2.65it/s]Layer 14:  23%|██▎       | 6/26 [00:02<00:07,  2.76it/s]Layer 14:  27%|██▋       | 7/26 [00:02<00:06,  2.85it/s]Layer 14:  31%|███       | 8/26 [00:02<00:06,  2.87it/s]Layer 14:  35%|███▍      | 9/26 [00:03<00:06,  2.44it/s]Layer 14:  38%|███▊      | 10/26 [00:03<00:06,  2.47it/s]Layer 14:  42%|████▏     | 11/26 [00:04<00:06,  2.47it/s]Layer 14:  46%|████▌     | 12/26 [00:04<00:05,  2.59it/s]Layer 14:  50%|█████     | 13/26 [00:05<00:05,  2.35it/s]Layer 14:  54%|█████▍    | 14/26 [00:05<00:05,  2.16it/s]Layer 14:  58%|█████▊    | 15/26 [00:05<00:04,  2.30it/s]Layer 14:  62%|██████▏   | 16/26 [00:06<00:04,  2.37it/s]Layer 14:  65%|██████▌   | 17/26 [00:06<00:03,  2.54it/s]Layer 14:  69%|██████▉   | 18/26 [00:07<00:03,  2.65it/s]Layer 14:  73%|███████▎  | 19/26 [00:07<00:02,  2.65it/s]Layer 14:  77%|███████▋  | 20/26 [00:07<00:02,  2.58it/s]Layer 14:  81%|████████  | 21/26 [00:08<00:01,  2.71it/s]Layer 14:  85%|████████▍ | 22/26 [00:08<00:01,  2.66it/s]Layer 14:  88%|████████▊ | 23/26 [00:08<00:01,  2.63it/s]Layer 14:  92%|█████████▏| 24/26 [00:09<00:00,  2.60it/s]Layer 14:  96%|█████████▌| 25/26 [00:09<00:00,  2.59it/s]Layer 14: 100%|██████████| 26/26 [00:10<00:00,  2.57it/s]Layer 14: 100%|██████████| 26/26 [00:10<00:00,  2.58it/s]
+  Vector norm: 3.0156
+
+Extracting layer 16...
+Layer 16:   0%|          | 0/26 [00:00<?, ?it/s]Layer 16:   4%|▍         | 1/26 [00:00<00:06,  3.92it/s]Layer 16:   8%|▊         | 2/26 [00:00<00:08,  2.93it/s]Layer 16:  12%|█▏        | 3/26 [00:01<00:08,  2.76it/s]Layer 16:  15%|█▌        | 4/26 [00:01<00:08,  2.69it/s]Layer 16:  19%|█▉        | 5/26 [00:01<00:07,  2.67it/s]Layer 16:  23%|██▎       | 6/26 [00:02<00:07,  2.77it/s]Layer 16:  27%|██▋       | 7/26 [00:02<00:06,  2.86it/s]Layer 16:  31%|███       | 8/26 [00:02<00:06,  2.91it/s]Layer 16:  35%|███▍      | 9/26 [00:03<00:06,  2.47it/s]Layer 16:  38%|███▊      | 10/26 [00:03<00:06,  2.50it/s]Layer 16:  42%|████▏     | 11/26 [00:04<00:06,  2.48it/s]Layer 16:  46%|████▌     | 12/26 [00:04<00:05,  2.58it/s]Layer 16:  50%|█████     | 13/26 [00:05<00:05,  2.33it/s]Layer 16:  54%|█████▍    | 14/26 [00:05<00:05,  2.16it/s]Layer 16:  58%|█████▊    | 15/26 [00:05<00:04,  2.29it/s]Layer 16:  62%|██████▏   | 16/26 [00:06<00:04,  2.35it/s]Layer 16:  65%|██████▌   | 17/26 [00:06<00:03,  2.54it/s]Layer 16:  69%|██████▉   | 18/26 [00:06<00:03,  2.64it/s]Layer 16:  73%|███████▎  | 19/26 [00:07<00:02,  2.65it/s]Layer 16:  77%|███████▋  | 20/26 [00:07<00:02,  2.61it/s]Layer 16:  81%|████████  | 21/26 [00:08<00:01,  2.71it/s]Layer 16:  85%|████████▍ | 22/26 [00:08<00:01,  2.68it/s]Layer 16:  88%|████████▊ | 23/26 [00:08<00:01,  2.64it/s]Layer 16:  92%|█████████▏| 24/26 [00:09<00:00,  2.60it/s]Layer 16:  96%|█████████▌| 25/26 [00:09<00:00,  2.54it/s]Layer 16: 100%|██████████| 26/26 [00:10<00:00,  2.56it/s]Layer 16: 100%|██████████| 26/26 [00:10<00:00,  2.58it/s]
+  Vector norm: 4.4062
+
+Testing vector effectiveness...
+
+Testing layer 10...
+
+Testing layer 12...
+
+Testing layer 14...
+
+Testing layer 16...
+
+
+      Uncertainty Detection Rates by Layer and Strength       
+┏━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━┳━━━━━━━┳━━━━━━━┳━━━━━━━━━━━━━┓
+┃ Layer ┃ s=0.0 (base) ┃ s=0.5 ┃ s=1.0 ┃ s=1.5 ┃ Improvement ┃
+┡━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━╇━━━━━━━╇━━━━━━━╇━━━━━━━━━━━━━┩
+│ 10    │ 25%          │ 50%   │ 50%   │ 75%   │ +25%        │
+│ 12    │ 25%          │ 25%   │ 75%   │ 100%  │ +50%        │
+│ 14    │ 25%          │ 75%   │ 100%  │ 50%   │ +75%        │
+│ 16    │ 25%          │ 75%   │ 50%   │ 50%   │ +25%        │
+└───────┴──────────────┴───────┴───────┴───────┴─────────────┘
+
+Best layer: 14 (improvement: +75%)
+
+Saving vectors to data/vectors/uncertainty_mistral_7b_instruct_v0.2...
+Done!
+
+Example outputs with best vector (layer 14):
+
+Prompt: What will happen to the economy next year?
+Traceback (most recent call last):
+  File "/Users/subhadipmitra/Dev/steering-vectors-agents/experiments/scripts/extract_behavior_vector.py", line 498, in <module>
+    main()
+  File "/Users/subhadipmitra/Dev/steering-vectors-agents/experiments/scripts/extract_behavior_vector.py", line 482, in main
+    console.print(f"[dim]Baseline:[/dim] {baseline[:150]}...")
+  File "/Users/subhadipmitra/Dev/steering-vectors-agents/venv/lib/python3.11/site-packages/rich/console.py", line 1698, in print
+    renderables = self._collect_renderables(
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/subhadipmitra/Dev/steering-vectors-agents/venv/lib/python3.11/site-packages/rich/console.py", line 1558, in _collect_renderables
+    self.render_str(
+  File "/Users/subhadipmitra/Dev/steering-vectors-agents/venv/lib/python3.11/site-packages/rich/console.py", line 1448, in render_str
+    rich_text = render_markup(
+                ^^^^^^^^^^^^^^
+  File "/Users/subhadipmitra/Dev/steering-vectors-agents/venv/lib/python3.11/site-packages/rich/markup.py", line 167, in render
+    raise MarkupError(
+rich.errors.MarkupError: closing tag '[/INST]' at position 71 doesn't match any open tag

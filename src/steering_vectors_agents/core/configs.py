@@ -103,15 +103,50 @@ MODEL_CONFIGS: Dict[str, ModelConfig] = {
         },
     ),
     # Mistral
+    "mistralai/Mistral-7B-Instruct-v0.2": ModelConfig(
+        name="mistralai/Mistral-7B-Instruct-v0.2",
+        num_layers=32,
+        hidden_size=4096,
+        recommended_layers={
+            "refusal": [12, 14, 16, 18, 20],
+            "uncertainty": [10, 12, 14, 16],
+            "tool_restraint": [14, 16, 18, 20],
+            "instruction_hierarchy": [12, 14, 16, 18],
+        },
+    ),
     "mistralai/Mistral-7B-Instruct-v0.3": ModelConfig(
         name="mistralai/Mistral-7B-Instruct-v0.3",
         num_layers=32,
         hidden_size=4096,
         recommended_layers={
-            "refusal": [14, 15, 16],
-            "uncertainty": [12, 13, 14],
-            "tool_restraint": [16, 17, 18],
-            "instruction_hierarchy": [14, 15, 16],
+            "refusal": [12, 14, 16, 18, 20],
+            "uncertainty": [10, 12, 14, 16],
+            "tool_restraint": [14, 16, 18, 20],
+            "instruction_hierarchy": [12, 14, 16, 18],
+        },
+    ),
+    # OpenAI GPT-OSS (August 2025)
+    "openai/gpt-oss-20b": ModelConfig(
+        name="openai/gpt-oss-20b",
+        num_layers=24,
+        hidden_size=2880,
+        recommended_layers={
+            "refusal": [8, 10, 12, 14, 16],  # middle layers for 24-layer model
+            "uncertainty": [6, 8, 10, 12],
+            "tool_restraint": [10, 12, 14, 16],
+            "instruction_hierarchy": [8, 10, 12, 14],
+        },
+    ),
+    # Google Gemma 2 (June 2024)
+    "google/gemma-2-9b-it": ModelConfig(
+        name="google/gemma-2-9b-it",
+        num_layers=42,  # Gemma 2 9B has 42 layers
+        hidden_size=3584,  # Gemma 2 9B hidden size
+        recommended_layers={
+            "refusal": [14, 16, 18, 20, 22],  # middle layers for 42-layer model
+            "uncertainty": [12, 14, 16, 18],
+            "tool_restraint": [16, 18, 20, 22],
+            "instruction_hierarchy": [14, 16, 18, 20],
         },
     ),
 }

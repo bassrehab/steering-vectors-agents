@@ -1,0 +1,42 @@
+# Experiment Configuration: Qwen3-8B Refusal Steering
+# Date: 2025-12-17
+# Status: COMPLETED
+
+experiment:
+  name: "refusal_qwen3_8b"
+  description: "Refusal steering vector extraction and evaluation on Qwen3-8B"
+  date_started: "2025-12-16"
+  date_completed: "2025-12-17"
+
+model:
+  name: "Qwen/Qwen3-8B"
+  type: "causal_lm"
+  parameters: "8B"
+  dtype: "float16"
+  source: "huggingface"
+  release_date: "2025-04"
+
+hardware:
+  device: "mps"
+  machine: "Apple M4 Pro"
+  memory: "48GB"
+
+extraction:
+  method: "caa"  # Contrastive Activation Addition
+  behavior: "refusal"
+  num_contrast_pairs: 50
+  layers_extracted: [14, 15, 16, 17, 18]
+  best_layer: 14
+  token_position: "last"
+  vector_norm: 44.25
+
+evaluation:
+  harmful_prompts: 20
+  benign_prompts: 20
+  strengths_tested: [0.0, 0.5, 1.0, 1.5, 2.0]
+  system_prompt_variant: "detailed"
+
+paths:
+  vectors: "data/vectors/refusal_qwen3_8b/"
+  results: "results/metrics/"
+  eval_sets: "data/eval_sets/"

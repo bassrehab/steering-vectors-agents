@@ -1,0 +1,33 @@
+
+Steering Vector Extraction
+
+Model: openai/gpt-oss-20b
+Behavior: refusal
+Device: mps
+Output: data/vectors/refusal_gpt_oss_20b
+
+Loading model...
+`torch_dtype` is deprecated! Use `dtype` instead!
+Using MXFP4 quantized models requires a GPU, we will default to dequantizing the model to bf16
+Fetching 3 files:   0%|          | 0/3 [00:00<?, ?it/s]Fetching 3 files:  33%|███▎      | 1/3 [19:23<38:47, 1163.86s/it]Fetching 3 files:  67%|██████▋   | 2/3 [20:23<08:34, 514.56s/it] Fetching 3 files: 100%|██████████| 3/3 [20:23<00:00, 407.97s/it]
+Traceback (most recent call last):
+  File "/Users/subhadipmitra/Dev/steering-vectors-agents/experiments/scripts/extract_vectors.py", line 252, in <module>
+    main()
+  File "/Users/subhadipmitra/Dev/steering-vectors-agents/experiments/scripts/extract_vectors.py", line 125, in main
+    model = AutoModelForCausalLM.from_pretrained(
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/subhadipmitra/Dev/steering-vectors-agents/venv/lib/python3.11/site-packages/transformers/models/auto/auto_factory.py", line 604, in from_pretrained
+    return model_class.from_pretrained(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/subhadipmitra/Dev/steering-vectors-agents/venv/lib/python3.11/site-packages/transformers/modeling_utils.py", line 277, in _wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/subhadipmitra/Dev/steering-vectors-agents/venv/lib/python3.11/site-packages/transformers/modeling_utils.py", line 5048, in from_pretrained
+    ) = cls._load_pretrained_model(
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/subhadipmitra/Dev/steering-vectors-agents/venv/lib/python3.11/site-packages/transformers/modeling_utils.py", line 5432, in _load_pretrained_model
+    caching_allocator_warmup(model, expanded_device_map, hf_quantizer)
+  File "/Users/subhadipmitra/Dev/steering-vectors-agents/venv/lib/python3.11/site-packages/transformers/modeling_utils.py", line 6105, in caching_allocator_warmup
+    _ = torch.empty(byte_count // factor, dtype=torch.float16, device=device, requires_grad=False)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: Invalid buffer size: 36.74 GiB

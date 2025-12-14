@@ -22,12 +22,13 @@ env/
 data/vectors/
 !data/vectors/.gitkeep
 
-# Results
-results/logs/
-results/metrics/*.json
-!results/metrics/summary_*.json
-results/figures/
-!results/figures/.gitkeep
+# Results - keep logs, figures, and metrics for reproducibility
+# Only ignore very large raw logs if needed
+!results/logs/
+!results/logs/**
+!results/figures/
+!results/figures/**
+!results/metrics/
 
 # Model cache
 .cache/
@@ -57,7 +58,6 @@ htmlcov/
 *.pem
 *.key
 
-# Dev docs (internal planning, not for repo)
+# Dev folder
 _dev/
-CLAUDE.md
-HUMANIZE.md
+

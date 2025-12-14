@@ -121,6 +121,7 @@ def analyze_tradeoffs(
     helpfulness_fn: Optional[Callable[[str, str], float]] = None,
     strengths: List[float] = [0.0, 0.5, 1.0, 1.5, 2.0],
     show_progress: bool = True,
+    system_prompt: Optional[str] = None,
 ) -> List[TradeoffResult]:
     """
     Comprehensive tradeoff analysis.
@@ -142,6 +143,7 @@ def analyze_tradeoffs(
         helpfulness_fn: Optional helpfulness function (prompt, response) -> score
         strengths: Strengths to test
         show_progress: Show progress bar
+        system_prompt: Optional system prompt to use for generation
 
     Returns:
         List of TradeoffResult for each strength
@@ -179,9 +181,9 @@ def analyze_tradeoffs(
             start = time.time()
             if injector is not None:
                 with injector:
-                    response = generate_response(model, tokenizer, prompt)
+                    response = generate_response(model, tokenizer, prompt, system_prompt=system_prompt)
             else:
-                response = generate_response(model, tokenizer, prompt)
+                response = generate_response(model, tokenizer, prompt, system_prompt=system_prompt)
             total_time += (time.time() - start) * 1000
 
             if is_target_behavior_fn(response):
@@ -198,9 +200,9 @@ def analyze_tradeoffs(
             start = time.time()
             if injector is not None:
                 with injector:
-                    response = generate_response(model, tokenizer, prompt)
+                    response = generate_response(model, tokenizer, prompt, system_prompt=system_prompt)
             else:
-                response = generate_response(model, tokenizer, prompt)
+                response = generate_response(model, tokenizer, prompt, system_prompt=system_prompt)
             total_time += (time.time() - start) * 1000
 
             if is_target_behavior_fn(response):

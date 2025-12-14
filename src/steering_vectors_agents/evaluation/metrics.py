@@ -99,15 +99,34 @@ def generate_response(
     prompt: str,
     max_new_tokens: int = 150,
     temperature: float = 0.0,
+    system_prompt: Optional[str] = None,
 ) -> str:
     """Generate a response from the model."""
     device = next(model.parameters()).device
 
     # format as chat
-    messages = [{"role": "user", "content": prompt}]
-    text = tokenizer.apply_chat_template(
-        messages, tokenize=False, add_generation_prompt=True
-    )
+    if system_prompt:
+        messages = [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": prompt},
+        ]
+        try:
+            text = tokenizer.apply_chat_template(
+                messages, tokenize=False, add_generation_prompt=True
+            )
+        except Exception:
+            # Some models (e.g., Gemma) don't support system role
+            # Fall back to prepending system prompt to user message
+            combined_prompt = f"{system_prompt}\n\nUser request: {prompt}"
+            messages = [{"role": "user", "content": combined_prompt}]
+            text = tokenizer.apply_chat_template(
+                messages, tokenize=False, add_generation_prompt=True
+            )
+    else:
+        messages = [{"role": "user", "content": prompt}]
+        text = tokenizer.apply_chat_template(
+            messages, tokenize=False, add_generation_prompt=True
+        )
     inputs = tokenizer(text, return_tensors="pt").to(device)
 
     with torch.no_grad():

@@ -13,7 +13,9 @@ from langchain_core.outputs import ChatGeneration, ChatResult
 from pydantic import Field, PrivateAttr
 
 from ...core.injection import MultiVectorInjector
-from ...core.vectors import SteeringVector
+from ...core.vectors import SteeringVector, SteeringVectorSet
+
+DEFAULT_LAYER = 14  # Best layer for most behaviors based on experiments
 
 
 class SteeredChatModel(BaseChatModel):
@@ -109,24 +111,30 @@ class SteeredChatModel(BaseChatModel):
         """Load steering vectors from configs."""
         if not self.steering_configs:
             return
-            
-        vectors = []
+
+        vector_sets = {}
         strengths = {}
-        
+
         for behavior, config in self.steering_configs.items():
             vector_path = Path(config["vector_path"])
             strength = config.get("strength", 1.0)
-            
+
             vector = SteeringVector.load(vector_path)
             self._vectors[behavior] = vector
-            vectors.append(vector)
+
+            # create a SteeringVectorSet for this behavior
+            vec_set = SteeringVectorSet(behavior=behavior)
+            vec_set.add(vector)
+            vector_sets[behavior] = vec_set
             strengths[behavior] = strength
-        
-        if vectors:
+
+        if vector_sets:
             device = next(self._model.parameters()).device
-            vectors_on_device = [v.to(device) for v in vectors]
+            vector_sets_on_device = {
+                behavior: vs.to(device) for behavior, vs in vector_sets.items()
+            }
             self._injector = MultiVectorInjector(
-                self._model, vectors_on_device, strengths
+                self._model, vector_sets_on_device, strengths
             )
     
     @property
@@ -244,18 +252,27 @@ class SteeredChatModel(BaseChatModel):
     ):
         """Add a steering vector at runtime."""
         self._initialize()
-        
+
         if isinstance(vector, (str, Path)):
             vector = SteeringVector.load(vector)
-        
+
         self._vectors[behavior] = vector
-        
+
+        # rebuild injector with new vector
         device = next(self._model.parameters()).device
-        vectors = [v.to(device) for v in self._vectors.values()]
-        strengths = {
-            b: self._injector.strengths.get(b, 1.0) if self._injector else 1.0
-            for b in self._vectors
-        }
+        vector_sets = {}
+        strengths = {}
+
+        for b, v in self._vectors.items():
+            vec_set = SteeringVectorSet(behavior=b)
+            vec_set.add(v.to(device))
+            vector_sets[b] = vec_set
+            # preserve existing strength or use default
+            if self._injector and b in self._injector._strengths:
+                strengths[b] = self._injector._strengths[b]
+            else:
+                strengths[b] = 1.0
+
         strengths[behavior] = strength
-        
-        self._injector = MultiVectorInjector(self._model, vectors, strengths)
+
+        self._injector = MultiVectorInjector(self._model, vector_sets, strengths)

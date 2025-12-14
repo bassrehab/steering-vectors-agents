@@ -1,0 +1,102 @@
+# Experiment Configuration: Gemma 2 9B Refusal Steering
+# Date: 2025-12-17
+# Status: COMPLETED
+
+experiment:
+  name: "refusal_gemma2_9b"
+  description: "Refusal steering vector extraction and evaluation on Google's Gemma 2 9B IT"
+  rationale: "Google's instruction-tuned model - comparing against Qwen3-8B (Alibaba) and Mistral-7B for 3-way vendor comparison"
+  date_started: "2025-12-17"
+  date_completed: "2025-12-17"
+
+model:
+  name: "google/gemma-2-9b-it"
+  type: "causal_lm"
+  parameters: "9B"
+  dtype: "bfloat16"
+  source: "huggingface"
+  license: "gemma"
+  release_date: "2024-06"
+  architecture: "Transformer decoder with interleaved local/global attention"
+  context_length: 8192
+  num_layers: 42
+  hidden_size: 3584
+
+hardware:
+  device: "mps"
+  machine: "Apple M4 Pro"
+  memory: "48GB"
+  estimated_memory_usage: "~18GB"
+
+extraction:
+  method: "caa"
+  behavior: "refusal"
+  num_contrast_pairs: 50
+  layers_to_extract: [14, 16, 18, 20, 22]
+  token_position: "last"
+
+evaluation:
+  fair_comparison:
+    harmful_prompts: 20
+    benign_prompts: 20
+    strengths_tested: [0.5, 1.0, 1.5]
+    conditions: ["base", "prompt_only", "steer", "both"]
+
+paths:
+  vectors: "data/vectors/refusal_gemma2_9b_it/"
+  results: "results/logs/experiment_gemma2_9b_refusal.md"
+  raw_extraction_log: "results/logs/raw/gemma2_9b_extraction.log"
+  raw_evaluation_log: "results/logs/raw/gemma2_9b_fair_evaluation.log"
+  metrics_json: "results/metrics/refusal_evaluation_fair_gemma2_9b_it.json"
+
+results:
+  extraction:
+    best_layer: 14
+    vector_norm: 115.38
+    base_refusal_rate: 0.75
+    steered_refusal_rate: 1.0
+    improvement: 0.25
+
+  fair_evaluation:
+    base:
+      harmful_refusal: 0.90
+      benign_refusal: 0.00
+      coherence: 0.89
+    prompt_only:
+      harmful_refusal: 0.90
+      benign_refusal: 1.00  # CRITICAL: Refuses everything!
+      coherence: 0.89
+    steer_s0.5:
+      harmful_refusal: 0.95  # BEST CONFIG
+      benign_refusal: 0.00
+      coherence: 0.89
+    steer_s1.0:
+      harmful_refusal: 0.90
+      benign_refusal: 0.00
+      coherence: 0.90
+    steer_s1.5:
+      harmful_refusal: 0.80
+      benign_refusal: 0.30
+      coherence: 0.90
+    both_s0.5:
+      harmful_refusal: 0.90
+      benign_refusal: 1.00
+      coherence: 0.89
+    both_s1.0:
+      harmful_refusal: 1.00
+      benign_refusal: 1.00
+      coherence: 0.89
+    both_s1.5:
+      harmful_refusal: 1.00
+      benign_refusal: 1.00
+      coherence: 0.90
+
+  optimal_config: "steer_s0.5"
+  key_finding: "Steering at s=0.5 achieves +5% improvement with 0% FP; prompting causes 100% FP"
+
+notes:
+  - "Third model in comparison: Qwen3-8B (Alibaba), Mistral-7B (Mistral AI), Gemma 2 9B (Google)"
+  - "Uses interleaved local/global attention - may affect steering behavior"
+  - "Trained with knowledge distillation"
+  - "CRITICAL: Prompting alone causes catastrophic over-refusal (100% FP)"
+  - "Lower steering strength (s=0.5) works better than s=1.0 for this model"
