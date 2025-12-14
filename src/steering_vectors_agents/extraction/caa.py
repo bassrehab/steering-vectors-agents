@@ -68,6 +68,7 @@ def extract_caa_vector(
     neg_mean = torch.stack(negative_activations).mean(dim=0)
 
     # steering vector = difference of means
+    # this is the core of CAA - surprisingly simple but it works
     steering_vector = pos_mean - neg_mean
 
     model_name = getattr(model.config, "_name_or_path", "unknown")
