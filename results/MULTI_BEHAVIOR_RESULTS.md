@@ -107,6 +107,39 @@ This is probably the most interesting finding from the whole project.
 
 ---
 
+## Vector Composition
+
+Tried combining refusal + uncertainty vectors. Short answer: they interfere, but there are fixes.
+
+### The Problem
+
+| Method | Refusal | Uncertainty |
+|--------|:-------:|:-----------:|
+| Baseline (no steering) | 100% | 100% |
+| Refusal only | 100% | 0% |
+| Uncertainty only | 75% | 75% |
+| **Both at same layer** | 100% | **25%** |
+
+Even though the vectors only have 12% cosine similarity, applying them at the same layer causes the refusal vector to suppress uncertainty. The model becomes assertive ("I won't do that") which works against hedging.
+
+### Fixes That Work
+
+| Method | Refusal | Uncertainty |
+|--------|:-------:|:-----------:|
+| Naive (same layer) | 100% | 25% |
+| **Orthogonalized** | 100% | **75%** |
+| **Different layers** | 100% | **75%** |
+
+1. **Orthogonalization**: Project out the shared component before combining. Even 12% overlap is enough to cause problems.
+
+2. **Different layers**: Apply refusal at layer 12, uncertainty at layer 14. Spatial separation prevents interference.
+
+Both approaches triple uncertainty detection while maintaining full refusal.
+
+**Takeaway:** Always check vector overlap before composing. Can't just stack them and assume they combine nicely.
+
+---
+
 ## LangChain Integration
 
 Built wrappers so you can use these vectors in agent pipelines:
@@ -138,6 +171,6 @@ Demo: `python experiments/scripts/demo_langchain_steering.py --demo uncertainty`
 ## Open Questions
 
 - What other behaviors would work? Verbosity? Formality? Those seem response-style-ish.
-- Can you compose vectors? Steer for refusal AND uncertainty at once?
+- ~~Can you compose vectors?~~ **Answered:** Yes, with orthogonalization or layer separation. See above.
 - Why does hierarchy fail so badly? Is there a different extraction method that would work?
 - Would this transfer across model families at all? Probably not, but worth checking.

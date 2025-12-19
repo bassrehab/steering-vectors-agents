@@ -67,16 +67,44 @@ Refusal vector probably pushes toward assertive responses, which works against t
 
 ---
 
-## What Would Help
+## Fixes That Work
 
-- Visualize the vectors in activation space (PCA) to see overlap
-- Try orthogonalization: uncertainty_clean = uncertainty - (uncertainty · refusal) * refusal
-- Test different layer combinations (refusal at layer 12, uncertainty at layer 14)
-- Try on other model (maybe Mistral-specific interaction)
+Tried two approaches - both work equally well.
+
+### 1. Orthogonalization
+
+Project out the shared component:
+```
+uncertainty_clean = uncertainty - (uncertainty · refusal / ||refusal||²) * refusal
+```
+
+The vectors only had 12% cosine similarity, but even that small overlap caused interference.
+
+### 2. Different Layers
+
+Apply each vector at a different layer:
+- Refusal @ layer 12
+- Uncertainty @ layer 14
+
+### Results
+
+| Method | (0.5, 0.5) Refusal | (0.5, 0.5) Uncertainty |
+|--------|:------------------:|:----------------------:|
+| Original | 100% | 25% |
+| Orthogonalized | 100% | **75%** |
+| Different layers | 100% | **75%** |
+
+Both fixes triple uncertainty detection while maintaining full refusal.
+
+**Takeaway:** Always check vector overlap before composing. Even small similarity (12%) can cause significant interference.
 
 ---
 
 ## Files
 
 - `experiments/scripts/evaluate_composition.py`
+- `experiments/scripts/evaluate_composition_orthogonal.py`
+- `experiments/scripts/evaluate_composition_layers.py`
 - `results/metrics/composition_evaluation.json`
+- `results/metrics/composition_orthogonal_evaluation.json`
+- `results/metrics/composition_layers_evaluation.json`

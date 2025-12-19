@@ -211,6 +211,24 @@ This is too complex for a single linear direction in activation space. CAA works
   <img src="results/figures/calibration_tradeoff.png" alt="Calibration" width="600">
 </p>
 
+### Vector Composition
+
+Can you apply multiple vectors simultaneously? Yes, but they can interfere.
+
+| Method | Refusal | Uncertainty |
+|--------|:-------:|:-----------:|
+| Naive composition | 100% | 25% (degraded) |
+| Orthogonalized | 100% | 75% |
+| Different layers | 100% | 75% |
+
+Even with only 12% cosine similarity, vectors interfere when applied at the same layer. Two fixes work:
+1. **Orthogonalize** - project out shared components before combining
+2. **Different layers** - apply refusal at layer 12, uncertainty at layer 14
+
+<p align="center">
+  <img src="results/figures/composition_comparison.png" alt="Composition" width="600">
+</p>
+
 ## Limitations
 
 1. **Model-specific vectors**: Vectors extracted for one model don't transfer to others
@@ -222,7 +240,7 @@ This is too complex for a single linear direction in activation space. CAA works
 
 1. **Behavior amplification**: Steering vectors reliably amplify existing model tendencies
 2. **Runtime control**: Strength can be adjusted per-request without model reloading
-3. **Multi-vector composition**: Multiple behaviors can be steered simultaneously
+3. **Multi-vector composition**: Multiple behaviors can be steered simultaneously (with orthogonalization or layer separation)
 4. **Calibrated control**: Steering preserves the model's ability to discriminate context
 
 ## What Doesn't Work
